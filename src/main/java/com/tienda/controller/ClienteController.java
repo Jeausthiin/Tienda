@@ -5,10 +5,13 @@
 package com.tienda.controller;
 
 import com.tienda.domain.Cliente;
+import com.tienda.services.ClienteService;
 import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  *
@@ -17,19 +20,40 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ClienteController {
 
+    @Autowired
+    private ClienteService clienteService;
+
     @GetMapping("/")
     public String inicio(Model model) {
-        var saludo = "Saludos desde el Back End";
-        model.addAttribute("mensaje", saludo);
 
-        Cliente cliente1 = new Cliente("Juan", "Contreras", "jcontreras@gmail.com", "252589947");
-        Cliente cliente2 = new Cliente("Pedro", "Contreras", "pcontreras@gmail.com", "252589947");
-        Cliente cliente3 = new Cliente("Rita", "Contreras", "rcontreras@gmail.com", "252589947");
-
-        var clientes = Arrays.asList(cliente1, cliente2, cliente3);
+        var clientes = clienteService.getClientes();
 
         model.addAttribute("clientes", clientes);
 
         return "index";
+    }
+
+    @GetMapping("/cliente/eliminar/{idCliente}")
+    public String eliminaCliente(Cliente cliente) {
+        clienteService.deleteCliente(cliente);
+        return "redirect:/";
+    }
+
+    @GetMapping("/cliente/modificar/{idCliente}")
+    public String modificaCliente(Cliente cliente, Model model) {
+        cliente = clienteService.getCliente(cliente);
+        model.addAttribute("cliente", cliente);
+        return "modificaCliente";
+    }
+
+    @GetMapping("/cliente/nuevo")
+    public String nuevoCliente(Cliente cliente) {
+        return "modificaCliente";
+    }
+
+    @PostMapping("/cliente/guardar")
+    public String guardarCliente(Cliente cliente) {
+        clienteService.saveCliente(cliente);
+        return "redirect:/";
     }
 }
